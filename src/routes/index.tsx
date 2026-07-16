@@ -88,7 +88,7 @@ function Index() {
         }}
       />
 
-      <nav className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between px-8 py-6 font-mono text-[10px] uppercase tracking-[0.4em] text-black/70 md:px-14">
+      <nav className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between px-6 py-5 font-mono text-[8px] uppercase tracking-[0.3em] text-black/70 md:px-14 md:py-6 md:text-[10px] md:tracking-[0.4em]">
         <Link to="/manifesto" className="transition hover:text-black">
           Manifesto
         </Link>
@@ -124,21 +124,21 @@ function Index() {
       >
         <form
           onSubmit={onSubmit}
-          className="w-full max-w-sm border-b border-black/40 pb-2"
+          className="w-full max-w-[17rem] border-b border-black/40 pb-1.5 md:max-w-sm md:pb-2"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email"
-              className="flex-1 bg-transparent py-2 font-serif text-lg text-black placeholder:text-black/40 focus:outline-none"
+              className="flex-1 bg-transparent py-1.5 font-serif text-base text-black placeholder:text-black/40 focus:outline-none md:py-2 md:text-lg"
             />
             <button
               type="submit"
               disabled={status === "sending"}
-              className="font-mono text-[10px] uppercase tracking-[0.4em] text-black/80 transition hover:text-black disabled:opacity-50"
+              className="font-mono text-[8px] uppercase tracking-[0.3em] text-black/80 transition hover:text-black disabled:opacity-50 md:text-[10px] md:tracking-[0.4em]"
             >
               {status === "sending"
                 ? "Sending…"
@@ -178,7 +178,7 @@ function Wordmark({ className }: { className?: string }) {
         fontFamily="'Nasalization', ui-sans-serif, system-ui, sans-serif"
         fontWeight="400"
         fontSize="72"
-        letterSpacing="2"
+        letterSpacing="5.8"
         fill="currentColor"
       >
         synq

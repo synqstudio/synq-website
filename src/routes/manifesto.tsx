@@ -44,11 +44,13 @@ function Manifesto() {
             Sense freely. Store sovereignly. Sync on your own terms.
           </p>
 
-          <p className="italic">synq</p>
+          <p className="pt-1 font-[Nasalization] text-xl tracking-[0.08em] md:text-2xl">
+            synq
+          </p>
         </div>
       </main>
 
-      <nav className="absolute inset-x-0 bottom-0 flex items-center justify-between px-8 py-6 font-mono text-[10px] uppercase tracking-[0.4em] text-black/70 md:px-14">
+      <nav className="absolute inset-x-0 bottom-0 flex items-center justify-between px-6 py-5 font-mono text-[8px] uppercase tracking-[0.3em] text-black/70 md:px-14 md:py-6 md:text-[10px] md:tracking-[0.4em]">
         <Link to="/" className="transition hover:text-black">
           Waitlist
         </Link>
