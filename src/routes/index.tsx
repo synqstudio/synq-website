@@ -28,9 +28,25 @@ function Index() {
     setEmail("");
   };
 
+  // The video content is masked with a radial fade that reaches full
+  // transparency exactly at the frame edges, so ring pieces entering from
+  // outside the frame (start of the video) dissolve instead of hard-clipping.
+  // The ring body itself never extends past ~65% of the half-frame, so it
+  // always stays inside the fully-opaque region.
+  const videoMask =
+    "radial-gradient(ellipse 50% 50% at center, black 62%, transparent 98%)";
+
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#e1e5ea] text-black antialiased">
-      {/* Background video — sits on pure white, uncropped */}
+    <div
+      className="hero-stage relative h-svh w-screen overflow-hidden text-black antialiased"
+      style={{
+        // Mimics the video's studio backdrop (bright center, darker edges)
+        // so the masked video fade is invisible against the page.
+        background:
+          "radial-gradient(120vmax 120vmax at 50% 50%, #e3e8ec 0%, #dfe4e9 40%, #d9dfe4 100%)",
+      }}
+    >
+      {/* Background video — element sized to its exact 16:9 content box */}
       <video
         ref={videoRef}
         src={videoUrl}
@@ -38,12 +54,12 @@ function Index() {
         muted
         playsInline
         preload="auto"
-        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 object-contain md:h-[75%] md:w-[75%]"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{
-          WebkitMaskImage:
-            "radial-gradient(ellipse 55% 55% at center, black 30%, transparent 90%)",
-          maskImage:
-            "radial-gradient(ellipse 55% 55% at center, black 30%, transparent 90%)",
+          width: "var(--video-w)",
+          height: "var(--video-h)",
+          WebkitMaskImage: videoMask,
+          maskImage: videoMask,
         }}
       />
 
@@ -54,20 +70,32 @@ function Index() {
         <div>© 2026 Synq Studios</div>
       </nav>
 
-      {/* Wordmark — anchored to the ring's optical center inside the video frame */}
+      {/*
+        Wordmark — anchored to the ring's aperture center in the paused frame,
+        measured at (50.4%, 55.3%) of the 1280x720 video. Offsets are in video
+        units so it stays locked to the ring at any viewport size, and its
+        width scales with the ring (aperture is ~25% of the frame width).
+      */}
       <div
-        className={`pointer-events-none absolute left-1/2 top-1/2 flex translate-x-[calc(-50%+1.35vw)] translate-y-[calc(-50%+0.85vw)] items-center justify-center transition-opacity duration-[1400ms] ease-out ${
+        className={`pointer-events-none absolute z-10 transition-opacity duration-[1400ms] ease-out ${
           revealed ? "opacity-100" : "opacity-0"
         }`}
+        style={{
+          left: "50%",
+          top: "calc(50% + var(--video-h) * 0.008)",
+          transform: "translate(-50%, -50%)",
+          width: "calc(var(--video-w) * 0.21)",
+        }}
       >
-        <Wordmark className="h-14 w-auto md:h-20 lg:h-24" />
+        <Wordmark className="h-auto w-full" />
       </div>
 
-      {/* Waitlist — pinned near the bottom, below the video frame */}
+      {/* Waitlist — anchored just below the video's bottom edge */}
       <div
-        className={`absolute inset-x-0 bottom-28 z-10 flex justify-center px-6 transition-opacity duration-[1400ms] ease-out md:bottom-32 ${
+        className={`absolute inset-x-0 z-10 flex justify-center px-6 transition-opacity duration-[1400ms] ease-out ${
           revealed ? "opacity-100" : "opacity-0"
         }`}
+        style={{ top: "calc(50% + var(--video-h) / 2 + 1.5rem)" }}
       >
         <form
           onSubmit={onSubmit}

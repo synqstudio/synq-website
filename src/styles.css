@@ -4,6 +4,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Hero stage geometry.
+ *
+ * The ring video is 1280x720 (16:9). --video-w/--video-h describe the exact
+ * rendered content box of the <video> element so the wordmark, the blending
+ * mask and the waitlist can all be positioned relative to the real video
+ * frame instead of the viewport:
+ *   - at most --video-frac of the viewport width/height,
+ *   - always leaves 19rem of vertical room (waitlist + nav) below the
+ *     vertically-centered video so the waitlist never overlaps it.
+ */
+.hero-stage {
+  --video-frac: 0.7;
+  --video-h: min(
+    calc(var(--video-frac) * 100svh),
+    calc(100svh - 19rem),
+    calc(var(--video-frac) * 100vw * 9 / 16)
+  );
+  --video-w: calc(var(--video-h) * 16 / 9);
+}
+@media (min-width: 768px) {
+  .hero-stage {
+    --video-frac: 0.75;
+  }
+}
+
 @font-face {
   font-family: "Nasalization";
   font-style: normal;
