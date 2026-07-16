@@ -21,7 +21,15 @@ export const Route = createFileRoute("/manifesto")({
 
 function Manifesto() {
   return (
-    <div className="relative min-h-screen w-full bg-[#e1e5ea] text-black antialiased">
+    <div
+      className="relative min-h-screen w-full text-black antialiased"
+      style={{
+        // Same backdrop as the home page (sampled from ringvid3.mp4) so
+        // navigating between pages doesn't shift the background color.
+        background:
+          "radial-gradient(120vmax 120vmax at 50% 50%, #dbe1e8 0%, #d7dde4 40%, #d2d9df 100%)",
+      }}
+    >
       <main className="mx-auto flex min-h-svh max-w-3xl flex-col justify-center px-6 py-16 md:px-0 md:py-24">
         <div className="space-y-5 font-serif text-lg leading-[1.35] tracking-tight text-black md:space-y-8 md:text-[28px] md:leading-[1.3]">
           <p>Own what you wear. Wear what you understand.</p>

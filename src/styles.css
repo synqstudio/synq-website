@@ -7,7 +7,7 @@
 /*
  * Hero stage geometry.
  *
- * The ring video is 1280x720 (16:9). --video-w/--video-h describe the exact
+ * The ring video is 1112x834 (4:3). --video-w/--video-h describe the exact
  * rendered content box of the <video> element so the wordmark, the blending
  * mask and the waitlist can all be positioned relative to the real video
  * frame instead of the viewport:
@@ -19,14 +19,25 @@
   --video-frac: 0.7;
   --video-h: min(
     calc(var(--video-frac) * 100svh),
-    calc(100svh - 19rem),
-    calc(var(--video-frac) * 100vw * 9 / 16)
+    calc(100svh - 16rem),
+    calc(var(--video-frac) * 100vw * 3 / 4)
   );
-  --video-w: calc(var(--video-h) * 16 / 9);
+  --video-w: calc(var(--video-h) * 4 / 3);
+  /*
+   * Resting ring extents inside the frame, measured from the final video
+   * frame (bbox y: 236..672 of 834): top edge sits 0.217*h above frame
+   * center, bottom edge 0.306*h below. The wordmark and waitlist anchor to
+   * these so both keep an identical visual gap from the ring itself.
+   * --ring-gap equals the ring-bottom -> frame-bottom distance + 1.5rem, so
+   * the waitlist lands exactly where the frame-edge anchoring used to put it.
+   */
+  --ring-top-offset: calc(var(--video-h) * 0.217);
+  --ring-bottom-offset: calc(var(--video-h) * 0.306);
+  --ring-gap: calc(var(--video-h) * 0.194 + 1.5rem);
 }
 @media (min-width: 768px) {
   .hero-stage {
-    --video-frac: 0.75;
+    --video-frac: 0.85;
   }
 }
 

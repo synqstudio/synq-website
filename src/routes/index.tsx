@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { createServerFn } from "@tanstack/react-start";
-import videoUrl from "@/assets/ring_explode.mp4";
+import videoUrl from "@/assets/ringvid3.mp4";
 
 const joinWaitlist = createServerFn({ method: "POST" })
   .validator((email: string) => {
@@ -33,10 +32,11 @@ function Index() {
     "idle",
   );
   const [revealed, setRevealed] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), 2400);
+    // Fallback in case the video never plays (e.g. iOS Low Power Mode
+    // blocks autoplay) — the reveal must not depend on `ended` firing.
+    const t = setTimeout(() => setRevealed(true), 6000);
     return () => clearTimeout(t);
   }, []);
 
@@ -68,17 +68,23 @@ function Index() {
         // Mimics the video's studio backdrop (bright center, darker edges)
         // so the masked video fade is invisible against the page.
         background:
-          "radial-gradient(120vmax 120vmax at 50% 50%, #e3e8ec 0%, #dfe4e9 40%, #d9dfe4 100%)",
+          "radial-gradient(120vmax 120vmax at 50% 50%, #dbe1e8 0%, #d7dde4 40%, #d2d9df 100%)",
       }}
     >
       {/* Background video — element sized to its exact 16:9 content box */}
       <video
-        ref={videoRef}
         src={videoUrl}
         autoPlay
         muted
         playsInline
         preload="auto"
+        onEnded={() => setRevealed(true)}
+        // Start the reveal slightly before the video ends so the text
+        // doesn't feel like it lags behind the settled ring.
+        onTimeUpdate={(e) => {
+          const v = e.currentTarget;
+          if (v.duration && v.duration - v.currentTime < 0.7) setRevealed(true);
+        }}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{
           width: "var(--video-w)",
@@ -88,7 +94,11 @@ function Index() {
         }}
       />
 
-      <nav className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between px-6 py-5 font-mono text-[8px] uppercase tracking-[0.3em] text-black/70 md:px-14 md:py-6 md:text-[10px] md:tracking-[0.4em]">
+      <nav
+        className={`absolute inset-x-0 bottom-0 z-10 flex items-center justify-between px-6 py-5 font-mono text-[8px] uppercase tracking-[0.3em] text-black/70 transition-opacity duration-[1400ms] ease-out md:px-14 md:py-6 md:text-[10px] md:tracking-[0.4em] ${
+          revealed ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <Link to="/manifesto" className="transition hover:text-black">
           Manifesto
         </Link>
@@ -96,31 +106,29 @@ function Index() {
       </nav>
 
       {/*
-        Wordmark — anchored to the ring's aperture center in the paused frame,
-        measured at (50.4%, 55.3%) of the 1280x720 video. Offsets are in video
-        units so it stays locked to the ring at any viewport size, and its
-        width scales with the ring (aperture is ~25% of the frame width).
+        Wordmark — hugs the resting ring's top edge (not the frame edge, which
+        has lots of empty backdrop above the ring), mirroring the waitlist
+        below. Reveals together with the waitlist: fade + gentle settle.
       */}
       <div
-        className={`pointer-events-none absolute z-10 transition-opacity duration-[1400ms] ease-out ${
-          revealed ? "opacity-100" : "opacity-0"
-        }`}
-        style={{
-          left: "50%",
-          top: "calc(50% + var(--video-h) * 0.008)",
-          transform: "translate(-50%, -50%)",
-          width: "calc(var(--video-w) * 0.21)",
-        }}
+        className="pointer-events-none absolute inset-x-0 z-10 flex justify-center px-6"
+        style={{ bottom: "calc(50% + var(--ring-top-offset) + var(--ring-gap) - 10px)" }}
       >
-        <Wordmark className="h-auto w-full" />
+        <div
+          className={`w-full max-w-[17rem] transition-[opacity,transform] duration-[1400ms] ease-out md:max-w-sm ${
+            revealed ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
+          }`}
+        >
+          <Wordmark className="h-auto w-full" />
+        </div>
       </div>
 
-      {/* Waitlist — anchored just below the video's bottom edge */}
+      {/* Waitlist — anchored just below the resting ring's bottom edge */}
       <div
         className={`absolute inset-x-0 z-10 flex justify-center px-6 transition-opacity duration-[1400ms] ease-out ${
           revealed ? "opacity-100" : "opacity-0"
         }`}
-        style={{ top: "calc(50% + var(--video-h) / 2 + 1.5rem)" }}
+        style={{ top: "calc(50% + var(--ring-bottom-offset) + var(--ring-gap))" }}
       >
         <form
           onSubmit={onSubmit}
