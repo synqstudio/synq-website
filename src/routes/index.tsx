@@ -26,17 +26,28 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+// Module scope: survives client-side navigations (e.g. manifesto -> home)
+// but resets on a hard refresh, so the intro animation plays once per page
+// load. Only ever mutated in the browser.
+let introPlayed = false;
+
 function Index() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(introPlayed);
+
+  const reveal = () => {
+    introPlayed = true;
+    setRevealed(true);
+  };
 
   useEffect(() => {
+    if (introPlayed) return;
     // Fallback in case the video never plays (e.g. iOS Low Power Mode
     // blocks autoplay) — the reveal must not depend on `ended` firing.
-    const t = setTimeout(() => setRevealed(true), 6000);
+    const t = setTimeout(reveal, 6000);
     return () => clearTimeout(t);
   }, []);
 
@@ -74,16 +85,21 @@ function Index() {
       {/* Background video — element sized to its exact 16:9 content box */}
       <video
         src={videoUrl}
-        autoPlay
+        autoPlay={!introPlayed}
         muted
         playsInline
         preload="auto"
-        onEnded={() => setRevealed(true)}
+        // On return visits (client-side nav back from the manifesto) skip
+        // straight to the settled final frame instead of replaying.
+        onLoadedMetadata={(e) => {
+          if (introPlayed) e.currentTarget.currentTime = e.currentTarget.duration;
+        }}
+        onEnded={reveal}
         // Start the reveal slightly before the video ends so the text
         // doesn't feel like it lags behind the settled ring.
         onTimeUpdate={(e) => {
           const v = e.currentTarget;
-          if (v.duration && v.duration - v.currentTime < 0.7) setRevealed(true);
+          if (v.duration && v.duration - v.currentTime < 0.7) reveal();
         }}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{

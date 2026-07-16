@@ -8,7 +8,7 @@ export const Route = createFileRoute("/manifesto")({
       {
         name: "description",
         content:
-          "Own what you wear. Wear what you understand. Understand what understands you. The Synq manifesto.",
+          "Own what listens. Question what answers. Understand what understands you. The Synq manifesto.",
       },
       { property: "og:title", content: "Manifesto — Synq Studios" },
       {
@@ -32,7 +32,7 @@ function Manifesto() {
     >
       <main className="mx-auto flex min-h-svh max-w-3xl flex-col justify-center px-6 py-16 md:px-0 md:py-24">
         <div className="space-y-5 font-serif text-lg leading-[1.35] tracking-tight text-black md:space-y-8 md:text-[28px] md:leading-[1.3]">
-          <p>Own what you wear. Wear what you understand.</p>
+          <p>Own what listens. Question what answers.</p>
 
           <p>Understand what understands you.</p>
 

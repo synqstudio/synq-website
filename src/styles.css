@@ -17,7 +17,11 @@
  */
 .hero-stage {
   --video-frac: 0.7;
+  /* Absolute ceiling on the video size; effectively unbounded on mobile,
+     tightened on desktop so fullscreen laptops don't get an oversized ring. */
+  --video-max: 9999px;
   --video-h: min(
+    var(--video-max),
     calc(var(--video-frac) * 100svh),
     calc(100svh - 16rem),
     calc(var(--video-frac) * 100vw * 3 / 4)
@@ -38,6 +42,7 @@
 @media (min-width: 768px) {
   .hero-stage {
     --video-frac: 0.85;
+    --video-max: 36rem;
   }
 }
 
