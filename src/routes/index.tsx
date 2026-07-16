@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import videoAsset from "@/assets/ring_explode.mp4.asset.json";
+import videoUrl from "@/assets/ring_explode.mp4";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -33,7 +33,7 @@ function Index() {
       {/* Background video — sits on pure white, uncropped */}
       <video
         ref={videoRef}
-        src={videoAsset.url}
+        src={videoUrl}
         autoPlay
         muted
         playsInline
