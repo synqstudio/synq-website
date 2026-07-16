@@ -110,11 +110,16 @@ function Index() {
           playsInline
           preload="auto"
           onEnded={startLoop}
-          // Start the reveal slightly before the intro ends so the text
-          // doesn't feel like it lags behind the settled ring.
+          // Reveal the text slightly before the intro ends, and begin the
+          // loop crossfade in the intro's final moments so the rotation is
+          // already visible the instant the intro stops (the ring pose in
+          // both layers matches, so the early start is imperceptible).
+          // `ended` above stays as a backstop for coarse timeupdate ticks.
           onTimeUpdate={(e) => {
             const v = e.currentTarget;
-            if (v.duration && v.duration - v.currentTime < 0.7) reveal();
+            if (!v.duration) return;
+            const remaining = v.duration - v.currentTime;
+            if (remaining < 0.7) startLoop();
           }}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
@@ -139,7 +144,7 @@ function Index() {
         playsInline
         preload="auto"
         autoPlay={!showIntro}
-        className={`absolute left-1/2 top-1/2 transition-opacity duration-300 ${
+        className={`absolute left-1/2 top-1/2 transition-opacity duration-150 ${
           looping ? "opacity-100" : "opacity-0"
         }`}
         style={{
