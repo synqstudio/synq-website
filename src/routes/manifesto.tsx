@@ -8,12 +8,12 @@ export const Route = createFileRoute("/manifesto")({
       {
         name: "description",
         content:
-          "Own the thing you wear. Wear the thing you understand. Understand the thing that understands you. The Synq manifesto.",
+          "Own what you wear. Wear what you understand. Understand what understands you. The Synq manifesto.",
       },
       { property: "og:title", content: "Manifesto — Synq Studios" },
       {
         property: "og:description",
-        content: "Sense freely. Store sovereignly. Sync with no one but yourself.",
+        content: "Sense freely. Store sovereignly. Sync on your own terms.",
       },
     ],
   }),
@@ -25,13 +25,12 @@ function Manifesto() {
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-8 py-24 md:px-0">
         <div className="space-y-8 font-serif text-2xl leading-[1.35] tracking-tight text-black md:text-[28px] md:leading-[1.3]">
           <p>
-            <span className="pl-24 md:pl-40">Own the thing you wear.</span>{" "}
-            Wear the thing you understand. Understand the thing that understands you.
+            <span className="pl-24 md:pl-40">Own what you wear.</span>{" "}
+            Wear what you understand. Understand what understands you.
           </p>
 
           <p>
-            Keep your signals close. Keep your keys closer. Keep the door open, but
-            only for yourself.
+            Keep your signals close. Keep your keys closer.
           </p>
 
           <p>
@@ -40,11 +39,10 @@ function Manifesto() {
 
           <p>
             Trust nothing you cannot read. Read everything you are asked to trust.
-            Then decide. Slowly. Once.
           </p>
 
           <p>
-            Sense freely. Store sovereignly. Sync with no one but yourself.
+            Sense freely. Store sovereignly. Sync on your own terms.
           </p>
 
           <p className="pt-4 italic">synq</p>
