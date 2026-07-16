@@ -1,7 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { createServerFn } from "@tanstack/react-start";
 import videoUrl from "@/assets/ring_explode.mp4";
+
+const joinWaitlist = createServerFn({ method: "POST" })
+  .validator((email: string) => {
+    const cleaned = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned)) {
+      throw new Error("Invalid email");
+    }
+    return cleaned;
+  })
+  .handler(async ({ data: email }) => {
+    const url = process.env.WAITLIST_WEBHOOK_URL;
+    if (!url) throw new Error("WAITLIST_WEBHOOK_URL is not configured");
+    const res = await fetch(url, {
+      method: "POST",
+      body: new URLSearchParams({ email }),
+    });
+    if (!res.ok) throw new Error(`Waitlist webhook failed: ${res.status}`);
+    return { ok: true };
+  });
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -9,7 +29,9 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "success">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
+    "idle",
+  );
   const [revealed, setRevealed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -18,14 +40,17 @@ function Index() {
     return () => clearTimeout(t);
   }, []);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes("@")) return;
-    const list = JSON.parse(localStorage.getItem("synq_waitlist") ?? "[]");
-    if (!list.includes(email)) list.push(email);
-    localStorage.setItem("synq_waitlist", JSON.stringify(list));
-    setStatus("success");
-    setEmail("");
+    if (!email.includes("@") || status === "sending") return;
+    setStatus("sending");
+    try {
+      await joinWaitlist({ data: email });
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    }
   };
 
   // The video content is masked with a radial fade that reaches full
@@ -112,9 +137,16 @@ function Index() {
             />
             <button
               type="submit"
-              className="font-mono text-[10px] uppercase tracking-[0.4em] text-black/80 transition hover:text-black"
+              disabled={status === "sending"}
+              className="font-mono text-[10px] uppercase tracking-[0.4em] text-black/80 transition hover:text-black disabled:opacity-50"
             >
-              {status === "success" ? "Received" : "Reserve →"}
+              {status === "sending"
+                ? "Sending…"
+                : status === "success"
+                  ? "Received"
+                  : status === "error"
+                    ? "Retry →"
+                    : "Reserve →"}
             </button>
           </div>
         </form>

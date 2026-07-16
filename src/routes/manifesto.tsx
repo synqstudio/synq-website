@@ -24,10 +24,9 @@ function Manifesto() {
     <div className="relative min-h-screen w-full bg-[#e1e5ea] text-black antialiased">
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-8 py-24 md:px-0">
         <div className="space-y-8 font-serif text-2xl leading-[1.35] tracking-tight text-black md:text-[28px] md:leading-[1.3]">
-          <p>
-            <span className="pl-24 md:pl-40">Own what you wear.</span>{" "}
-            Wear what you understand. Understand what understands you.
-          </p>
+          <p>Own what you wear. Wear what you understand.</p>
+
+          <p>Understand what understands you.</p>
 
           <p>
             Keep your signals close. Keep your keys closer.
@@ -45,7 +44,7 @@ function Manifesto() {
             Sense freely. Store sovereignly. Sync on your own terms.
           </p>
 
-          <p className="pt-4 italic">synq</p>
+          <p className="italic">synq</p>
         </div>
       </main>
 
