@@ -38,6 +38,16 @@
   --ring-top-offset: calc(var(--video-h) * 0.217);
   --ring-bottom-offset: calc(var(--video-h) * 0.306);
   --ring-gap: calc(var(--video-h) * 0.194 + 1.5rem);
+  /*
+   * rotate.mp4 (the infinite-rotation loop) is 1280x720 with the ring at
+   * 57.9% of frame height centered at (49.7%, 51.6%); the intro ring is
+   * 52.3% of frame height centered at (49.7%, 54.4%). Scaling the loop
+   * element by 0.523/0.579 and shifting it down 0.03*--video-h puts both
+   * rings at the same on-screen size and position, so the intro -> loop
+   * handoff is invisible.
+   */
+  --loop-h: calc(var(--video-h) * 0.9026);
+  --loop-w: calc(var(--loop-h) * 16 / 9);
 }
 @media (min-width: 768px) {
   .hero-stage {

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createServerFn } from "@tanstack/react-start";
-import videoUrl from "@/assets/ringvid3.mp4";
+import introUrl from "@/assets/ringvid3.mp4";
+import loopUrl from "@/assets/rotate.mp4";
 
 const joinWaitlist = createServerFn({ method: "POST" })
   .validator((email: string) => {
@@ -37,17 +38,32 @@ function Index() {
     "idle",
   );
   const [revealed, setRevealed] = useState(introPlayed);
+  // Whether the rotation loop is the visible layer. True from the start on
+  // return navigations (intro already played this page load).
+  const [looping, setLooping] = useState(introPlayed);
+  // Captured at mount: the intro element stays mounted underneath the loop
+  // for the whole visit so the crossfade has a stable layer below it.
+  const [showIntro] = useState(!introPlayed);
+  const loopRef = useRef<HTMLVideoElement | null>(null);
 
   const reveal = () => {
     introPlayed = true;
     setRevealed(true);
   };
 
+  const startLoop = () => {
+    reveal();
+    setLooping(true);
+    // If autoplay is blocked this rejects and the loop element simply shows
+    // its paused first frame — the resting ring — which is still correct.
+    loopRef.current?.play().catch(() => {});
+  };
+
   useEffect(() => {
     if (introPlayed) return;
-    // Fallback in case the video never plays (e.g. iOS Low Power Mode
-    // blocks autoplay) — the reveal must not depend on `ended` firing.
-    const t = setTimeout(reveal, 6000);
+    // Fallback in case the intro never plays (e.g. iOS Low Power Mode
+    // blocks autoplay) — the page must not stay stuck on an empty backdrop.
+    const t = setTimeout(startLoop, 6000);
     return () => clearTimeout(t);
   }, []);
 
@@ -82,29 +98,55 @@ function Index() {
           "radial-gradient(120vmax 120vmax at 50% 50%, #dbe1e8 0%, #d7dde4 40%, #d2d9df 100%)",
       }}
     >
-      {/* Background video — element sized to its exact 16:9 content box */}
+      {/*
+        Intro video (4:3) — plays once per page load, then hands off to the
+        rotation loop. Stays mounted underneath as the bottom crossfade layer.
+      */}
+      {showIntro && (
+        <video
+          src={introUrl}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={startLoop}
+          // Start the reveal slightly before the intro ends so the text
+          // doesn't feel like it lags behind the settled ring.
+          onTimeUpdate={(e) => {
+            const v = e.currentTarget;
+            if (v.duration && v.duration - v.currentTime < 0.7) reveal();
+          }}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: "var(--video-w)",
+            height: "var(--video-h)",
+            WebkitMaskImage: videoMask,
+            maskImage: videoMask,
+          }}
+        />
+      )}
+
+      {/*
+        Rotation loop (16:9) — sized and offset so its ring exactly overlaps
+        the intro's resting ring (see --loop-h in styles.css), then crossfaded
+        in over the intro's frozen last frame.
+      */}
       <video
-        src={videoUrl}
-        autoPlay={!introPlayed}
+        ref={loopRef}
+        src={loopUrl}
+        loop
         muted
         playsInline
         preload="auto"
-        // On return visits (client-side nav back from the manifesto) skip
-        // straight to the settled final frame instead of replaying.
-        onLoadedMetadata={(e) => {
-          if (introPlayed) e.currentTarget.currentTime = e.currentTarget.duration;
-        }}
-        onEnded={reveal}
-        // Start the reveal slightly before the video ends so the text
-        // doesn't feel like it lags behind the settled ring.
-        onTimeUpdate={(e) => {
-          const v = e.currentTarget;
-          if (v.duration && v.duration - v.currentTime < 0.7) reveal();
-        }}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        autoPlay={!showIntro}
+        className={`absolute left-1/2 top-1/2 transition-opacity duration-300 ${
+          looping ? "opacity-100" : "opacity-0"
+        }`}
         style={{
-          width: "var(--video-w)",
-          height: "var(--video-h)",
+          width: "var(--loop-w)",
+          height: "var(--loop-h)",
+          transform:
+            "translate(-50%, -50%) translateY(calc(var(--video-h) * 0.0296))",
           WebkitMaskImage: videoMask,
           maskImage: videoMask,
         }}
