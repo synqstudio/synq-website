@@ -129,6 +129,7 @@ function Index() {
           <div className="flex items-center gap-3 md:gap-4">
             <input
               type="email"
+              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}

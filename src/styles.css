@@ -39,6 +39,24 @@
 }
 
 /*
+ * Neutralize the browser autofill highlight (yellow/blue box WebKit paints
+ * over autofilled inputs). The background is applied internally by the
+ * browser and can't be overridden directly; delaying its transition
+ * near-indefinitely keeps the input transparent, and -webkit-text-fill-color
+ * keeps the typed text black.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition:
+    background-color 9999999s ease-in-out 0s,
+    color 9999999s ease-in-out 0s;
+  -webkit-text-fill-color: #000;
+  caret-color: #000;
+}
+
+/*
  * Design system definition.
  *
  * The @theme inline block maps CSS custom properties to Tailwind utility

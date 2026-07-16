@@ -22,8 +22,8 @@ export const Route = createFileRoute("/manifesto")({
 function Manifesto() {
   return (
     <div className="relative min-h-screen w-full bg-[#e1e5ea] text-black antialiased">
-      <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-8 py-24 md:px-0">
-        <div className="space-y-8 font-serif text-2xl leading-[1.35] tracking-tight text-black md:text-[28px] md:leading-[1.3]">
+      <main className="mx-auto flex min-h-svh max-w-3xl flex-col justify-center px-6 py-16 md:px-0 md:py-24">
+        <div className="space-y-5 font-serif text-lg leading-[1.35] tracking-tight text-black md:space-y-8 md:text-[28px] md:leading-[1.3]">
           <p>Own what you wear. Wear what you understand.</p>
 
           <p>Understand what understands you.</p>
@@ -44,7 +44,7 @@ function Manifesto() {
             Sense freely. Store sovereignly. Sync on your own terms.
           </p>
 
-          <p className="pt-1 font-[Nasalization] text-xl tracking-[0.08em] md:text-2xl">
+          <p className="pt-1 font-[Nasalization] text-base tracking-[0.08em] md:text-2xl">
             synq
           </p>
         </div>
