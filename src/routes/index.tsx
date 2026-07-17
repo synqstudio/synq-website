@@ -41,10 +41,13 @@ function Index() {
   // Whether the rotation loop is the visible layer. True from the start on
   // return navigations (intro already played this page load).
   const [looping, setLooping] = useState(introPlayed);
-  // Captured at mount: the intro element stays mounted underneath the loop
-  // for the whole visit so the crossfade has a stable layer below it.
-  const [showIntro] = useState(!introPlayed);
+  // The intro element is unmounted shortly after the loop takes over. It
+  // must not linger: browsers evict paused video data of background tabs,
+  // and on tab restore the autoplay attribute replays the intro, whose
+  // dropping ring bleeds through the loop's mask edges as a "ghost".
+  const [showIntro, setShowIntro] = useState(!introPlayed);
   const loopRef = useRef<HTMLVideoElement | null>(null);
+  const loopStarted = useRef(false);
 
   const reveal = () => {
     introPlayed = true;
@@ -52,11 +55,15 @@ function Index() {
   };
 
   const startLoop = () => {
+    if (loopStarted.current) return;
+    loopStarted.current = true;
     reveal();
     setLooping(true);
     // If autoplay is blocked this rejects and the loop element simply shows
     // its paused first frame — the resting ring — which is still correct.
     loopRef.current?.play().catch(() => {});
+    // Drop the intro layer once the 150ms crossfade has fully completed.
+    setTimeout(() => setShowIntro(false), 500);
   };
 
   useEffect(() => {
@@ -121,7 +128,10 @@ function Index() {
             const remaining = v.duration - v.currentTime;
             if (remaining < 0.7) startLoop();
           }}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          // max-w-none: see the loop video below — without it the preflight
+          // max-width clamp letterboxes this element on phones, shrinking
+          // the ring and exposing the video's top edge past the mask fade.
+          className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
           style={{
             width: "var(--video-w)",
             height: "var(--video-h)",
@@ -144,7 +154,10 @@ function Index() {
         playsInline
         preload="auto"
         autoPlay={!showIntro}
-        className={`absolute left-1/2 top-1/2 transition-opacity duration-150 ${
+        // max-w-none: Tailwind preflight sets max-width:100% on <video>,
+        // which clamps this wider-than-viewport 16:9 element on phones and
+        // letterboxes the ring smaller at the intro -> loop handoff.
+        className={`absolute left-1/2 top-1/2 max-w-none transition-opacity duration-150 ${
           looping ? "opacity-100" : "opacity-0"
         }`}
         style={{
@@ -178,7 +191,7 @@ function Index() {
         style={{ bottom: "calc(50% + var(--ring-top-offset) + var(--ring-gap) - 10px)" }}
       >
         <div
-          className={`w-full max-w-[17rem] transition-[opacity,transform] duration-[1400ms] ease-out md:max-w-sm ${
+          className={`w-full max-w-[clamp(17rem,60vw,24rem)] transition-[opacity,transform] duration-[1400ms] ease-out ${
             revealed ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
           }`}
         >
@@ -195,7 +208,7 @@ function Index() {
       >
         <form
           onSubmit={onSubmit}
-          className="w-full max-w-[17rem] border-b border-black/40 pb-1.5 md:max-w-sm md:pb-2"
+          className="w-full max-w-[clamp(17rem,60vw,24rem)] border-b border-black/40 pb-1.5 md:pb-2"
         >
           <div className="flex items-center gap-3 md:gap-4">
             <input

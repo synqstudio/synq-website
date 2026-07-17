@@ -16,7 +16,7 @@
  *     vertically-centered video so the waitlist never overlaps it.
  */
 .hero-stage {
-  --video-frac: 0.7;
+  --video-frac: 1.15;
   /* Absolute ceiling on the video size; effectively unbounded on mobile,
      tightened on desktop so fullscreen laptops don't get an oversized ring. */
   --video-max: 9999px;
@@ -51,7 +51,6 @@
 }
 @media (min-width: 768px) {
   .hero-stage {
-    --video-frac: 0.85;
     --video-max: 36rem;
   }
 }

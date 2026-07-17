@@ -22,7 +22,7 @@ export const Route = createFileRoute("/manifesto")({
 function Manifesto() {
   return (
     <div
-      className="relative min-h-screen w-full text-black antialiased"
+      className="relative min-h-svh w-full text-black antialiased"
       style={{
         // Same backdrop as the home page (sampled from ringvid3.mp4) so
         // navigating between pages doesn't shift the background color.
@@ -38,10 +38,6 @@ function Manifesto() {
 
           <p>
             Keep your signals close. Keep your keys closer.
-          </p>
-
-          <p>
-            Let the machine see through you. Never let it see past you.
           </p>
 
           <p>
