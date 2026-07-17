@@ -34,9 +34,9 @@ let introPlayed = false;
 
 function Index() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "invalid" | "sending" | "success" | "error"
+  >("idle");
   const [revealed, setRevealed] = useState(introPlayed);
   // Whether the rotation loop is the visible layer. True from the start on
   // return navigations (intro already played this page load).
@@ -76,7 +76,13 @@ function Index() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes("@") || status === "sending") return;
+    if (status === "sending") return;
+    // Custom validation instead of the browser's native tooltip bubble,
+    // which can't be styled and clashes with the design.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setStatus("invalid");
+      return;
+    }
     setStatus("sending");
     try {
       await joinWaitlist({ data: email });
@@ -188,14 +194,22 @@ function Index() {
       */}
       <div
         className="pointer-events-none absolute inset-x-0 z-10 flex justify-center px-6"
-        style={{ bottom: "calc(50% + var(--ring-top-offset) + var(--ring-gap) - 10px)" }}
+        style={{ bottom: "calc(50% + var(--ring-top-offset) + var(--ring-gap) - 23px)" }}
       >
         <div
           className={`w-full max-w-[clamp(17rem,60vw,24rem)] transition-[opacity,transform] duration-[1400ms] ease-out ${
             revealed ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
           }`}
         >
-          <Wordmark className="h-auto w-full" />
+          <Wordmark
+            className="h-auto w-full"
+            style={{
+              filter: "drop-shadow(0 12px 28px rgba(30, 41, 59, 0.22))",
+            }}
+          />
+          <p className="mt-2 text-center font-mono text-[8px] uppercase tracking-[0.35em] text-black/50 md:mt-3 md:text-[9px]">
+            Sovereign sensing — coming 2026
+          </p>
         </div>
       </div>
 
@@ -208,36 +222,58 @@ function Index() {
       >
         <form
           onSubmit={onSubmit}
-          className="w-full max-w-[clamp(17rem,60vw,24rem)] border-b border-black/40 pb-1.5 md:pb-2"
+          noValidate
+          className={`relative w-full max-w-[clamp(17rem,60vw,24rem)] border-b pb-1.5 transition-colors duration-300 focus-within:border-black/80 md:pb-2 ${
+            status === "invalid" ? "border-black/80" : "border-black/40"
+          }`}
         >
           <div className="flex items-center gap-3 md:gap-4">
             <input
               type="email"
               autoComplete="email"
               required
+              aria-invalid={status === "invalid"}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (status === "invalid") setStatus("idle");
+              }}
               placeholder="Your email"
               className="flex-1 bg-transparent py-1.5 font-serif text-base text-black placeholder:text-black/40 focus:outline-none md:py-2 md:text-lg"
             />
             <button
               type="submit"
               disabled={status === "sending"}
-              className="font-mono text-[8px] uppercase tracking-[0.3em] text-black/80 transition hover:text-black disabled:opacity-50 md:text-[10px] md:tracking-[0.4em]"
+              className="group font-mono text-[8px] uppercase tracking-[0.3em] text-black/80 transition hover:text-black disabled:opacity-50 md:text-[10px] md:tracking-[0.4em]"
             >
-              {status === "sending"
-                ? "Sending…"
-                : status === "success"
-                  ? "Received"
-                  : status === "error"
-                    ? "Retry →"
-                    : "Reserve →"}
+              {status === "sending" ? (
+                "Sending…"
+              ) : status === "success" ? (
+                "Received"
+              ) : (
+                <>
+                  {status === "error" ? "Retry" : "Reserve"}{" "}
+                  <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
+                    →
+                  </span>
+                </>
+              )}
             </button>
           </div>
+          {/* Inline validation hint in the site's own mono-label voice */}
+          <p
+            aria-live="polite"
+            className={`pointer-events-none absolute -bottom-6 left-0 font-mono text-[8px] uppercase tracking-[0.3em] text-black/50 transition-opacity duration-300 md:text-[9px] ${
+              status === "invalid" ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            Enter a valid email
+          </p>
         </form>
       </div>
 
-
+      <div className="stagelight" aria-hidden="true" />
+      <div className="grain" aria-hidden="true" />
     </div>
   );
 }
@@ -247,11 +283,18 @@ function Index() {
  * (heavy sans, low contrast, a distinctive rounded 'q' terminal). Not a copy of the
  * exact logo — a text-based wordmark in a similar spirit.
  */
-function Wordmark({ className }: { className?: string }) {
+function Wordmark({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <svg
       viewBox="0 0 260 100"
       className={className}
+      style={style}
       aria-label="Synq"
       role="img"
     >

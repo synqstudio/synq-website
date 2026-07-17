@@ -55,6 +55,78 @@
   }
 }
 
+/*
+ * Stage lighting overlay. A soft key light from the top and a gentle
+ * corner vignette, drawn over the backdrop and the video so both sit in
+ * one shared light (also helps mask the video frame edges). Sits BELOW
+ * the text/UI layers (z-10) — light on the scene must not wash out the
+ * ink-black type above it.
+ */
+.stagelight {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 100% at 50% -10%,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0) 66%
+    ),
+    /* Fill light from below — much weaker than the key, opposite side,
+       lifts the page and softens the top-vs-bottom contrast. */
+    radial-gradient(
+      110% 70% at 50% 110%,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      145% 145% at 50% 50%,
+      rgba(15, 23, 42, 0) 42%,
+      rgba(15, 23, 42, 0.42) 100%
+    );
+}
+
+/*
+ * Manifesto variant: the text block sits left-of-center, so the key light
+ * is aimed upper-left — brightest where reading begins, falling off as the
+ * eye descends. No bounce fill; nothing on the "floor" to reflect off.
+ */
+.stagelight--left {
+  background:
+    radial-gradient(
+      100% 95% at 36% -10%,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0) 66%
+    ),
+    /* Fill light from the lower-right — diagonally opposite the key. */
+    radial-gradient(
+      100% 70% at 64% 110%,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      145% 145% at 45% 45%,
+      rgba(15, 23, 42, 0) 42%,
+      rgba(15, 23, 42, 0.42) 100%
+    );
+}
+
+/*
+ * Film-grain overlay. A tiling SVG turbulence texture at ~4% opacity —
+ * imperceptible as texture, but it kills gradient banding and gives the
+ * flat CSS surfaces the same "photographed" quality as the video footage.
+ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 @font-face {
   font-family: "Nasalization";
   font-style: normal;
