@@ -31,7 +31,13 @@ function Manifesto() {
       }}
     >
       <main className="relative z-10 mx-auto flex min-h-svh max-w-3xl flex-col justify-center px-6 py-16 md:pl-16 md:pr-0 md:py-24">
-        <div className="space-y-5 font-serif text-lg leading-[1.35] tracking-tight text-black md:space-y-8 md:text-[28px] md:leading-[1.3]">
+        {/*
+          Fluid type: the longest authored line ("Keep your signals close,
+          and your keys closer.") measures ~13.9em, so 7vw - 3px lets it fill
+          ~98% of the padded viewport width on phones (book-like), capped at
+          the 28px desktop size which takes over from ~443px up.
+        */}
+        <div className="space-y-6 font-serif text-[clamp(18px,calc(7vw_-_3px),28px)] leading-[1.35] tracking-tight text-black md:space-y-8 md:leading-[1.3]">
           {/*
             Set as verse, not prose: one sentence per line, so line breaks are
             authored rather than left to viewport wrapping. The closing stanza
@@ -51,7 +57,7 @@ function Manifesto() {
             Read everything you are asked to trust.
           </p>
 
-          <p>Keep your signals close, and your keys closer.</p>
+          <p>Keep your signals close, your keys closer.</p>
 
           <p>
             Sense freely.
@@ -61,7 +67,8 @@ function Manifesto() {
             Sync on your own terms.
           </p>
 
-          <p className="pt-1 font-[Nasalization] text-base tracking-[0.08em] md:text-2xl">
+          {/* em-based so it tracks the fluid stanza size at every viewport */}
+          <p className="pt-1 font-[Nasalization] text-[0.86em] tracking-[0.08em]">
             synq
           </p>
         </div>
