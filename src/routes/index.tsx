@@ -46,6 +46,8 @@ function Index() {
   // and on tab restore the autoplay attribute replays the intro, whose
   // dropping ring bleeds through the loop's mask edges as a "ghost".
   const [showIntro, setShowIntro] = useState(!introPlayed);
+  const [introVisible, setIntroVisible] = useState(false);
+  const introRef = useRef<HTMLVideoElement | null>(null);
   const loopRef = useRef<HTMLVideoElement | null>(null);
   const loopStarted = useRef(false);
 
@@ -59,17 +61,35 @@ function Index() {
     loopStarted.current = true;
     reveal();
     setLooping(true);
-    // If autoplay is blocked this rejects and the loop element simply shows
-    // its paused first frame — the resting ring — which is still correct.
-    loopRef.current?.play().catch(() => {});
+    const loop = loopRef.current;
+    if (loop) {
+      loop.muted = true;
+      loop.play().catch(() => {
+        const retry = () => {
+          loopRef.current?.play().catch(() => {});
+          window.removeEventListener("pointerdown", retry);
+          window.removeEventListener("keydown", retry);
+        };
+        window.addEventListener("pointerdown", retry, { once: true });
+        window.addEventListener("keydown", retry, { once: true });
+      });
+    }
     // Drop the intro layer once the 150ms crossfade has fully completed.
     setTimeout(() => setShowIntro(false), 500);
   };
 
   useEffect(() => {
     if (introPlayed) return;
-    // Fallback in case the intro never plays (e.g. iOS Low Power Mode
-    // blocks autoplay) — the page must not stay stuck on an empty backdrop.
+    const intro = introRef.current;
+    if (intro && !intro.paused) {
+      // Autoplay already running (Chrome honors the attribute before
+      // hydration, so the `playing` event fired before React listened).
+      setIntroVisible(true);
+    } else if (intro) {
+      intro.muted = true;
+      intro.play().catch(() => startLoop());
+    }
+    // Backstop in case playback silently stalls without ever rejecting.
     const t = setTimeout(startLoop, 6000);
     return () => clearTimeout(t);
   }, []);
@@ -117,12 +137,17 @@ function Index() {
       */}
       {showIntro && (
         <video
+          ref={introRef}
           src={introUrl}
           autoPlay
           muted
           playsInline
           preload="auto"
           onEnded={startLoop}
+          // First real playback frame -> fade the intro in. Until then it
+          // stays invisible so Safari's grey "not playing yet" placeholder
+          // never shows (the weird oval shadow).
+          onPlaying={() => setIntroVisible(true)}
           // Reveal the text slightly before the intro ends, and begin the
           // loop crossfade in the intro's final moments so the rotation is
           // already visible the instant the intro stops (the ring pose in
@@ -137,7 +162,9 @@ function Index() {
           // max-w-none: see the loop video below — without it the preflight
           // max-width clamp letterboxes this element on phones, shrinking
           // the ring and exposing the video's top edge past the mask fade.
-          className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
+          className={`absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 ${
+            introVisible ? "opacity-100" : "opacity-0"
+          }`}
           style={{
             width: "var(--video-w)",
             height: "var(--video-h)",
