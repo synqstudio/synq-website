@@ -8,7 +8,7 @@ export const Route = createFileRoute("/manifesto")({
       {
         name: "description",
         content:
-          "Own what listens. Question what answers. Understand what understands you. The Synq manifesto.",
+          "Sense freely. Store sovereignly. Sync on your own terms. The Synq manifesto.",
       },
       { property: "og:title", content: "Manifesto — Synq Studios" },
       {
@@ -32,33 +32,15 @@ function Manifesto() {
     >
       <main className="relative z-10 mx-auto flex min-h-svh max-w-3xl flex-col justify-center px-6 py-16 md:pl-16 md:pr-0 md:py-24">
         {/*
-          Fluid type: the longest authored line ("Keep your signals close,
-          and your keys closer.") measures ~13.9em, so 7vw - 3px lets it fill
-          ~98% of the padded viewport width on phones (book-like), capped at
-          the 28px desktop size which takes over from ~443px up.
+          Fluid type: sized so the longest line ("Sync on your own terms.")
+          fills the padded viewport width on phones (book-like), capped at
+          the 28px desktop size.
         */}
         <div className="space-y-6 font-serif text-[clamp(18px,calc(7vw_-_3px),28px)] leading-[1.35] tracking-tight text-black md:space-y-8 md:leading-[1.3]">
           {/*
-            Set as verse, not prose: one sentence per line, so line breaks are
-            authored rather than left to viewport wrapping. The closing stanza
-            is italic — the tonal turn from vigilance to release.
+            Set as verse: one sentence per line, so line breaks are authored
+            rather than left to viewport wrapping.
           */}
-          <p>
-            Own what listens.
-            <br />
-            Question what answers.
-          </p>
-
-          <p>Understand what understands you.</p>
-
-          <p>
-            Trust nothing you cannot read.
-            <br />
-            Read everything you are asked to trust.
-          </p>
-
-          <p>Keep your signals close, your keys closer.</p>
-
           <p>
             Sense freely.
             <br />
